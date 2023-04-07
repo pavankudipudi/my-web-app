@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-web-page-pod
+  labels:
+    app: my-web-page
+spec:
+  containers:
+  - name: my-web-page
+    image: my-web-page
+    ports:
+    - containerPort: 8000
