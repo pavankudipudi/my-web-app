@@ -1,9 +1,10 @@
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from flask import Flask, render_template
 
-PORT = 8000
+app = Flask(__name__)
 
-handler = SimpleHTTPRequestHandler()
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-with HTTPServer(("", PORT), handler) as server:
-    print(f"Serving at http://localhost:{PORT}")
-    server.serve_forever()
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')

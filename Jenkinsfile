@@ -1,41 +1,31 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.9'
-        }
-    }
+    agent any
+
     stages {
         stage('Build') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'docker build -t sample-web-app .'
             }
         }
+
         stage('Test') {
             steps {
-                sh 'python manage.py test'
+                sh 'docker run --rm -p 5000:5000 sample-web-app pytest'
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Deploy') {
             steps {
-                sh 'docker build -t my-web-page .'
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push my-web-page'
-                }
-            }
-        }
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
-                    sh 'kubectl apply -f deployment.yaml'
-                    sh 'kubectl apply -f pod.yaml'
-                    sh 'kubectl apply -f service.yaml'
-                }
+                sh 'docker push your-docker-hub-username/sample-web-app:latest'
+                sh 'kubectl apply -f kubernetes-deployment.yml'
             }
         }
     }
+
+    post {
+        always {
+            sh 'docker stop sample-web-app'
+        }
+    }
 }
+
