@@ -4,27 +4,20 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t sample-web-app .'
+                sh 'docker build -t my-web-app .'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'docker run --rm -p 5000:5000 sample-web-app pytest'
+                sh 'docker run --rm -p 5000:5000 my-web-app python3 -m unittest'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker push your-docker-hub-username/sample-web-app:latest'
-                sh 'kubectl apply -f kubernetes-deployment.yml'
+                sh 'docker push my-web-app'
             }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker stop sample-web-app'
         }
     }
 }
